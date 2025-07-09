@@ -20,13 +20,11 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({children}: {children: ReactNode}) {
-    // const [queryClient] = useState(() => new QueryClient())
 
     return (
         <html lang="pt-BR">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}>
                 <AppContextProvider>{children}</AppContextProvider>
-                {/* {children} */}
             </body>
         </html>
     )

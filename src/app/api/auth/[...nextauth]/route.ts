@@ -1,27 +1,26 @@
-import NextAuth, { AuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
+import GoogleProvider from "next-auth/providers/google"
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import prisma from "@/index";
+import NextAuth from "next-auth"
+import { prisma } from "@/lib/prisma"
 
-const baseUrl =
-  process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3000";
-
-export const authOptions: AuthOptions = {
+const handler = NextAuth({
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-  session: {
-    strategy: "jwt",
-  },
-  jwt: {
-    secret: process.env.NEXTAUTH_SECRET,
-  },
   callbacks: {
+    async session({ session, token }) {
+      session.user.role = token.role as string
+      return session
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = (user as any).role
+      }
+      return token
+    },
     async signIn({ user }) {
       await prisma.user.upsert({
         where: { email: user.email! },
@@ -34,15 +33,9 @@ export const authOptions: AuthOptions = {
       });
       return true;
     },
-    async session({ session, token }) {
-      session.user.role = token.role;
-      return session;
-    },
-    async jwt({ token, user }) {
-      return { ...token, ...user }
-    }
   },
-};
+  session: { strategy: "jwt" },
+  secret: process.env.NEXTAUTH_SECRET,
+})
 
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+export { handler as GET, handler as POST }

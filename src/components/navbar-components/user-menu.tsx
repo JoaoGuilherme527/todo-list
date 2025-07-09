@@ -1,19 +1,5 @@
 "use client"
-
-import {BoltIcon, BookOpenIcon, Layers2Icon, LogOutIcon, PinIcon, UserPenIcon} from "lucide-react"
-
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
-import {Button} from "@/components/ui/button"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {signOut, useSession} from "next-auth/react"
+import {useSession} from "next-auth/react"
 import {Skeleton} from "../ui/skeleton"
 import {SidebarLink} from "../ui/sidebar"
 import {usePathname} from "next/navigation"

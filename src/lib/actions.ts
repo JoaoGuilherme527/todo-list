@@ -1,31 +1,12 @@
 'use server'
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import prisma from "@/index";
-import { projectCreateSchema, ProjectFormData } from "@/types/api";
-import { Column, Project, TodoItem } from "@prisma/client";
-import { AppColumn, AppProject, AppTodoItem, getServerSession } from "next-auth";
+import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { NextResponse } from "next/server";
-import { z } from "zod";
 
-async function ValidateSession() {
-    const session = await getServerSession(authOptions)
-    if (!session) {
-        return
-    }
-    else return session
-}
-
-export async function GetProjects() {
-    const session = await ValidateSession()
+export async function GetProjects(email: string) {
     try {
-        const email = session?.user.email as string
-        const user = await prisma.user.findUnique({
-            where: { email }
-        })
         const projects = await prisma.project.findMany({
-            where: { ownerId: user?.email },
+            where: { ownerId: email },
             include: {
                 columns: {
                     include: {
@@ -36,17 +17,16 @@ export async function GetProjects() {
         })
         return projects
     } catch (error) {
-        return Response.json({ error: "Get projects error: " + error }, { status: 500 })
+        console.log({ error: "Get projects error: " + error }, { status: 500 });
     }
 }
 
 export async function CreateProject(formData: FormData) {
-    const session = await ValidateSession()
     try {
         await prisma.project.create({
             data: {
                 name: formData.get("name") as string,
-                owner: { connect: { email: session?.user.email! } },
+                owner: { connect: { email: formData.get("email") as string } },
             },
         })
 
@@ -57,8 +37,6 @@ export async function CreateProject(formData: FormData) {
 }
 
 export async function DeleteProject(formData: FormData) {
-    await ValidateSession()
-
     const id = formData.get("id") as string
 
     try {
@@ -70,7 +48,6 @@ export async function DeleteProject(formData: FormData) {
 }
 
 export async function GetColumnItems(projectId: string) {
-    await ValidateSession()
     try {
         const columns = await prisma.column.findMany({
             where: { projectId },
@@ -87,8 +64,6 @@ export async function GetColumnItems(projectId: string) {
 }
 
 export async function CreateColumn(formData: FormData) {
-    await ValidateSession()
-
     const { name, color, projectId } = {
         name: formData.get("name") as string,
         color: formData.get("color") as string,
@@ -118,8 +93,6 @@ export async function CreateColumn(formData: FormData) {
 }
 
 export async function DeleteColumn(formData: FormData) {
-    await ValidateSession()
-
     const id = formData.get("id") as string
 
     try {
@@ -131,14 +104,12 @@ export async function DeleteColumn(formData: FormData) {
 }
 
 export async function CreateTodo(formData: FormData) {
-    const session = await ValidateSession()
-
     const body = {
         content: formData.get("content") as string,
         startAt: new Date(formData.get("startAt") as string),
         endAt: new Date(formData.get("endAt") as string),
         column: { connect: { id: formData.get("columnId") as string } },
-        owner: { connect: { email: session?.user.email as string } },
+        owner: { connect: { email: formData.get("email") as string } },
     }
 
     try {
@@ -152,8 +123,6 @@ export async function CreateTodo(formData: FormData) {
 }
 
 export async function PatchTodo({ id, columnId }: { id: string, columnId: string }) {
-    await ValidateSession()
-
     try {
         await prisma.todoItem.update({
             where: { id },
@@ -166,8 +135,6 @@ export async function PatchTodo({ id, columnId }: { id: string, columnId: string
 }
 
 export async function DeleteTodo(formData: FormData) {
-    await ValidateSession()
-
     const id = formData.get("id") as string
 
     try {
