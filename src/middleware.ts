@@ -16,8 +16,12 @@ export async function middleware(request: NextRequest) {
     request.cookies.get("next-auth.session-token")?.value ||
     request.cookies.get("__Secure-next-auth.session-token")?.value
 
-  if (!authToken && publicRoute) {
-    return NextResponse.next()
+  if (!authToken && publicRoute && publicRoute.whenAuthenticated === "next") {
+    const redirectUrl = request.nextUrl.clone()
+
+    redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE
+
+    return NextResponse.redirect(redirectUrl)
   }
 
   if (!authToken && !publicRoute) {
@@ -25,7 +29,7 @@ export async function middleware(request: NextRequest) {
 
     redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE
 
-    return NextResponse.rewrite(redirectUrl)
+    return NextResponse.redirect(redirectUrl)
   }
 
   if (authToken && publicRoute && publicRoute.whenAuthenticated === "redirect") {
@@ -33,7 +37,7 @@ export async function middleware(request: NextRequest) {
 
     redirectUrl.pathname = '/dashboard'
 
-    return NextResponse.rewrite(redirectUrl)
+    return NextResponse.redirect(redirectUrl)
   }
 
   if (authToken && !publicRoute) {

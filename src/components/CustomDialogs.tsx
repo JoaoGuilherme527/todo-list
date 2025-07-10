@@ -16,18 +16,27 @@ import {IconPlus} from "@tabler/icons-react"
 import {CreateColumn, CreateProject} from "@/lib/actions"
 import {Button} from "@/components/ui/button"
 import {useSession} from "next-auth/react"
+import {useEffect, useTransition} from "react"
+import {useAppContext} from "@/context/AppProvider"
 
 export function DialogCreateProject() {
     const {data: session, status} = useSession()
+    const {refreshProjects} = useAppContext()
+    const [isPending, startTransition] = useTransition()
+
+    useEffect(() => {
+        startTransition(() => {
+            refreshProjects()
+        })
+    }, [refreshProjects])
 
     if (status === "loading") {
         return <p>Loading...</p>
     }
 
     if (!session) {
-        return <p>NotFound</p>
+        return <p></p>
     }
-
     return (
         <Dialog>
             <DialogContent className="sm:max-w-[425px] bg-secondary">
@@ -40,14 +49,7 @@ export function DialogCreateProject() {
                         <div className="grid gap-3">
                             <Label htmlFor="name">Project</Label>
                             <Input id="name" name="name" placeholder="Project name" />
-                            <Input
-                                id="name"
-                                name="email"
-                                readOnly
-                                hidden
-                                value={session?.user.email as string}
-                                defaultValue={session?.user.email as string}
-                            />
+                            <Input id="email" name="email" readOnly hidden value={session?.user.email as string} />
                         </div>
                     </div>
 

@@ -1,6 +1,6 @@
 'use server'
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function GetProjects(email: string) {
@@ -26,11 +26,11 @@ export async function CreateProject(formData: FormData) {
         await prisma.project.create({
             data: {
                 name: formData.get("name") as string,
-                owner: { connect: { email: formData.get("email") as string } },
+                owner: { connect: { email: formData.get("email") as string} },
             },
         })
 
-        revalidatePath("/")
+        revalidatePath("/dashboard")
     } catch (error) {
         console.log({ error: "Create project error: " + error }, { status: 500 });
     }
@@ -41,7 +41,7 @@ export async function DeleteProject(formData: FormData) {
 
     try {
         await prisma.project.delete({ where: { id } })
-        revalidatePath("/")
+        revalidatePath("/dashboard")
     } catch (err) {
         console.error("Error deleting project:", err)
     }
@@ -85,7 +85,7 @@ export async function CreateColumn(formData: FormData) {
 
         await prisma.column.create({ data: { name, color, projectId } })
 
-        revalidatePath("/")
+        revalidatePath("/project")
 
     } catch (err) {
         console.error("Error creating column:", err)
@@ -116,7 +116,7 @@ export async function CreateTodo(formData: FormData) {
         await prisma.todoItem.create({
             data: body,
         })
-        revalidatePath("/")
+        revalidatePath("/project")
     } catch (error) {
         console.log({ error: "Create todo error: " + error }, { status: 500 });
     }
@@ -128,7 +128,7 @@ export async function PatchTodo({ id, columnId }: { id: string, columnId: string
             where: { id },
             data: { column: { connect: { id: columnId } } },
         })
-        revalidatePath("/")
+        revalidatePath("/project")
     } catch {
         return Response.json({ error: "Erro ao mover todo" }, { status: 500 })
     }
@@ -139,7 +139,7 @@ export async function DeleteTodo(formData: FormData) {
 
     try {
         await prisma.todoItem.delete({ where: { id } })
-        revalidatePath("/")
+        revalidatePath("/project")
     } catch (err) {
         console.error("Error deleting todo:", err)
     }

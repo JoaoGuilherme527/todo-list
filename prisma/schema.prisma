@@ -62,7 +62,7 @@ model VerificationRequest {
 
 model Project {
   id        String   @id @default(cuid())
-  name      String
+  name      String   @unique
   ownerId   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -73,7 +73,7 @@ model Project {
 
 model Column {
   id        String   @id @default(cuid())
-  name      String
+  name      String   @unique
   color     String
   projectId String
   createdAt DateTime @default(now())

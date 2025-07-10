@@ -25,6 +25,8 @@
 
 # prisma
 /prisma/dev.db
+/prisma/migrations
+/src/generated/prisma
 
 # env files
 .env*

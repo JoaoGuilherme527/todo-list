@@ -7,7 +7,7 @@ import {Sidebar, DesktopSidebar, MobileSidebar, SidebarBody, SidebarLink, Sideba
 import HeaderComponent from "./HeaderComponent"
 import {SessionProvider, signOut, useSession} from "next-auth/react"
 import UserMenu from "./navbar-components/user-menu"
-import {usePathname} from "next/navigation"
+import {usePathname, useRouter} from "next/navigation"
 import {ToastProvider} from "./ui/toast"
 import {AppContextProvider} from "@/context/AppProvider"
 export function SidebarComponent({children}: {children: ReactNode}) {
@@ -54,9 +54,15 @@ export function SidebarComponent({children}: {children: ReactNode}) {
 
 const LogoutButton = () => {
     const {open, animate} = useSidebar()
-
+    const route = useRouter()
     return (
-        <div className={cn("flex items-center justify-start gap-2  group/sidebar py-2 cursor-pointer")} onClick={() => signOut()}>
+        <div
+            className={cn("flex items-center justify-start gap-2  group/sidebar py-2 cursor-pointer")}
+            onClick={() => {
+                signOut()
+                route.push("/login")
+            }}
+        >
             <IconArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
             <motion.span
                 animate={{

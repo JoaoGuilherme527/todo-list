@@ -7,34 +7,25 @@ import EditDropDownMenu from "./EditDropDownMenuComponent"
 import Link from "next/link"
 import {DeleteProject, GetProjects} from "@/lib/actions"
 import {useSession} from "next-auth/react"
-import {useLayoutEffect, useState} from "react"
+import {useEffect, useLayoutEffect, useState, useTransition} from "react"
 import {AppProject} from "next-auth"
+import {useAppContext} from "@/context/AppProvider"
 
-export default function ProjectsComponent() {
+export default function ProjectsComponent({isPending, projects}: {isPending: boolean; projects: AppProject[]}) {
     const {data: session, status} = useSession()
-    const [projects, setProjects] = useState<AppProject[] | undefined>()
+    const {refreshProjects} = useAppContext()
+    const [isLoading, startTransition] = useTransition()
 
-    useLayoutEffect(() => {
-        ProjectHandler()
-    }, [])
-
-    if (status === "loading") {
-        return <p></p>
-    }
-
-    if (!session) {
-        return <p>NotFound</p>
-    }
-
-    async function ProjectHandler() {
-        const res = await GetProjects(session?.user.email as string)
-        setProjects(res as any)
-    }
+    useEffect(() => {
+        startTransition(() => {
+            refreshProjects()
+        })
+    }, [refreshProjects])
 
     return (
         <div className="flex w-full h-full flex-wrap gap-2 relative">
             <AnimatedGridPattern
-                numSquares={30}
+                numSquares={isPending || isLoading ? 200 : 30}
                 maxOpacity={0.1}
                 duration={3}
                 repeatDelay={1}
