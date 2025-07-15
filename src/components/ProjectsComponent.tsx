@@ -12,20 +12,13 @@ import {AppProject} from "next-auth"
 import {useAppContext} from "@/context/AppProvider"
 
 export default function ProjectsComponent({isPending, projects}: {isPending: boolean; projects: AppProject[]}) {
-    const {data: session, status} = useSession()
-    const {refreshProjects} = useAppContext()
-    const [isLoading, startTransition] = useTransition()
-
-    useEffect(() => {
-        startTransition(() => {
-            refreshProjects()
-        })
-    }, [refreshProjects])
+    // const {data: session, status} = useSession()
+    // const {load} = useAppContext()
 
     return (
         <div className="flex w-full h-full flex-wrap gap-2 relative">
             <AnimatedGridPattern
-                numSquares={isPending || isLoading ? 200 : 30}
+                numSquares={30}
                 maxOpacity={0.1}
                 duration={3}
                 repeatDelay={1}

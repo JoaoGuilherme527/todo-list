@@ -11,6 +11,8 @@ import {usePathname, useRouter} from "next/navigation"
 import {ToastProvider} from "./ui/toast"
 import {AppContextProvider} from "@/context/AppProvider"
 export function SidebarComponent({children}: {children: ReactNode}) {
+    const {data: session} = useSession()
+    
     const links = [
         {
             label: "Dashboard",

@@ -21,14 +21,7 @@ import {useAppContext} from "@/context/AppProvider"
 
 export function DialogCreateProject() {
     const {data: session, status} = useSession()
-    const {refreshProjects} = useAppContext()
-    const [isPending, startTransition] = useTransition()
-
-    useEffect(() => {
-        startTransition(() => {
-            refreshProjects()
-        })
-    }, [refreshProjects])
+    const {refreshLoad} = useAppContext()
 
     if (status === "loading") {
         return <p>Loading...</p>
@@ -40,7 +33,7 @@ export function DialogCreateProject() {
     return (
         <Dialog>
             <DialogContent className="sm:max-w-[425px] bg-secondary">
-                <form action={CreateProject} className="flex flex-col gap-4">
+                <form action={CreateProject} onSubmit={refreshLoad} className="flex flex-col gap-4">
                     <DialogHeader>
                         <DialogTitle>Create Project</DialogTitle>
                         <DialogDescription>Create a new project. Click Save changes to add at your Dashboard.</DialogDescription>

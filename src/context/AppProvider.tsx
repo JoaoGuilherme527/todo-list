@@ -12,6 +12,8 @@ interface AppContextType {
     setCurrentProjectId: (param: string | undefined) => void
     projects: AppProject[] | undefined
     refreshProjects: () => Promise<void>
+    load: boolean
+    refreshLoad: () => void
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -32,18 +34,24 @@ export function AppContextProvider({children}: AppContextProviderProps) {
     const [currentProjectId, setCurrentProjectId] = useState<string | undefined>(undefined)
     const {data: session} = useSession()
     const [projects, setProjects] = useState<AppProject[] | undefined>()
+    const [load, setLoad] = useState<boolean>(false)
 
     const refreshProjects = useCallback(async () => {
         if (!session?.user.email) return
         const res = await GetProjects(session.user.email)
         setProjects(res as typeof projects)
-    }, [session?.user.email])
+    }, [session?.user.email,""])
+
+    const refreshLoad = () => {
+        setTimeout(() => {
+            setLoad(!load)
+        }, 300)
+        setLoad(!load)
+    }
 
     return (
-        <AppContext.Provider value={{currentProjectId, setCurrentProjectId, projects, refreshProjects}}>
-            <ToastProvider swipeDirection="left">
-                {children}
-            </ToastProvider>
+        <AppContext.Provider value={{refreshLoad, load, currentProjectId, setCurrentProjectId, projects, refreshProjects}}>
+            {children}
         </AppContext.Provider>
     )
 }
